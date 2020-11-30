@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Nov 29 23:05:03 2020
+
+Calendar
+
+@author: Родион
+"""
+
 import turtle as t
 t.hideturtle()
 t.speed(10)
@@ -11,43 +20,77 @@ class House:
     def First_move(self):
         t.penup()
         t.setpos(House.X_Main,House.Y_Main)
-        t.pendown()
+        
+        
   
    
 class Walls:
-    def __init__(self,ww,wh,color="Red"):
-        self.X_Walls =  House.X_Main
-        self.Y_Walls = House.Y_Main
-        self.Walls_Width = abs(self.X_Walls)* ww 
-        self.Walls_Height = abs(self.Y_Walls)* wh 
-        self.Walls_Color = color
+    Walls_Width  = 0
+    Walls_Height = 0
+    
+    Walls_Color = "Red"
+    def Set_Walls(self,w,h,color="Red"): 
+        Walls.Walls_Color = color
+        X_Walls = House.X_Main
+        Y_Walls = House.Y_Main
+        Walls.Walls_Width  = abs(X_Walls) * w 
+        Walls.Walls_Height = abs(Y_Walls) * h  
         
     def Draw_Walls(self):
-        t.fillcolor(self.Walls_Color)
+        t.pendown()
+        t.fillcolor(Walls.Walls_Color)
         t.begin_fill()
-        t.forward(self.Walls_Width)
+        t.forward(Walls.Walls_Width)
         t.left(90)
-        t.forward(self.Walls_Height)
+        t.forward(Walls.Walls_Height)
         t.left(90)
-        t.forward(self.Walls_Width)
+        t.forward(Walls.Walls_Width)
+        t.left(90)
+        t.forward(Walls.Walls_Height)
+        t.left(90)
         t.end_fill()
         t.penup()
 
-
+class Roof:
+    def __init__(self,color="Red"):
+        self.Roof_Width = Walls.Walls_Width * 1.2
+        self.Roof_Hieght = Walls.Walls_Height*0.5
+        self.X_Roof = House.X_Main + Walls.Walls_Width/2 -self.Roof_Width/2
+        self.Y_Roof = Walls.Walls_Height + House.Y_Main
+        
+        self.Roof_Color = color
+    def Draw_Roof(self):
+        
+        t.fillcolor(self.Roof_Color) 
+        t.setposition(self.X_Roof,self.Y_Roof)
+        t.begin_fill()
+        t.pendown()
+        t.forward(self.Roof_Width)
+        t.setposition(self.X_Roof + self.Roof_Width/2,self.Y_Roof + self.Roof_Hieght)
+        t.setposition(self.X_Roof,self.Y_Roof)
+        t.end_fill()
+        t.penup()
         
    
     
-X = -300
-Y = -100
+X = -100
+Y = -200
 
 
 
 House_Object = House()
 House_Object.Locate(X,Y)       
 House_Object.First_move()
-Walls_Obj = Walls(1.2,1,color = "Green")
+
+Walls_Obj = Walls()
+
+
+Walls_Obj.Set_Walls(3,1,color = "Green")
 Walls_Obj.Draw_Walls()
 
+Roof_Obj = Roof()
+
+Roof_Obj.Draw_Roof()
 
 t.done()
  
