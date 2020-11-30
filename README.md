@@ -1,3 +1,1 @@
-# hello-word
-Hello, Universe!
-I'd like to start learning PyGame package, and maybe make my own game.
+Short programm for drawing the House with Turtle Graphics module
