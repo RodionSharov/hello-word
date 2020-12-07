@@ -1,12 +1,10 @@
 
-from math import pi, sin
+from math import pi, sin,sqrt
 import turtle as t
 
 
-t.speed("normal")
-
 Common_House_Parametrs = dict(x = -200,y = -100, w_f = 400, h_f = 15,
-                              Door_location = 30,N =6,winloc= 0.6,
+                              Door_location = 0.05,N =6,winloc= 0.6,
                               fcolor = "Black",wcolor="Red",
                               rcolor = "Red",dcolor = "Brown",
                               wincolor = "light blue",R_variant = "Trapeze")
@@ -16,17 +14,16 @@ class House:
     def __init__(self,House_Parametrs = Common_House_Parametrs ):
         self.This_House_Parametrs = Common_House_Parametrs.copy()
         self.This_House_Parametrs.update(House_Parametrs)
-        
-       
+         
         print("Создаётся дом с параметрами:",self.This_House_Parametrs)
                  
-        
         self.House_Found = Foundation(self.This_House_Parametrs)   #self.X_Main,self.Y_Main, self.F_wh,self.F_ht,self.F_clr
         self.House_Wall = Walls(self.This_House_Parametrs)
         self.House_Roof = Roof(self.This_House_Parametrs)   # self.X_Main,self.Y_Main, self.F_wh,self.F_ht,self.F_clr,self.W_clr,self.R_clr,self.R_Var
         self.House_Door = Door(self.This_House_Parametrs) #self.X_Main,self.Y_Main, self.F_wh,self.F_ht, self.D_Loc,self.D_clr
         self.House_Window = Window(self.This_House_Parametrs)  # self.X_Main,self.Y_Main,self.F_wh,self.F_ht,self.Win_N,self.Win_Loc,self.Win_Clr
-        
+      
+    # Метод изменения цвет стен 
     def change_walls_color(self,new_color):
         del self.House_Door
         del self.House_Window  
@@ -37,43 +34,53 @@ class House:
         self.House_Window   = Window(self.This_House_Parametrs)
         
         
-    
+    # Метод для изменения цвета крыша
     def change_Roof_color(self,new_color):
         del self.House_Roof  #self.House_Roof.Erase_Roof()
         self.This_House_Parametrs.update(dict(rcolor = new_color))   
         self.House_Roof = Roof(self.This_House_Parametrs)            # House_Roof.__init__(self.This_House_Parametrs)
         
-    
+    # Метод изменения типа крыши
     def Choose_New_Roof(self,kind):
         del self.House_Roof
         self.This_House_Parametrs.update(dict(R_variant = kind))  
         print("Новая крыша: \n",self.This_House_Parametrs["R_variant"])
         self.House_Roof = Roof(self.This_House_Parametrs) 
-    
+    # Метод изменения цвета дверей
     def change_Door_color(self,new_color):
         del self.House_Door
         self.This_House_Parametrs.update(dict(dcolor = new_color))
         self.House_Door     = Door(self.This_House_Parametrs)
-        
+    
+    # Метод изменения положения
     def Change_Position(self,x_new,y_new):
         print("Дом перемещается...")
         
         House.__del__(self)
-        """
-        del self.House_Found
-        del self.House_Wall
-        del self.House_Roof
-        del self.House_Door
-        del self.House_Window
-        """
         self.This_House_Parametrs.update(dict(x = x_new,y = y_new))  
         House.__init__(self,self.This_House_Parametrs)
+        
+    # Метод изменения ширины фундамента
     def Increase_the_width(self,koeff):
         House.__del__(self)
         self.This_House_Parametrs.update(dict(w_f = koeff * self.This_House_Parametrs["w_f"] ))
         House.__init__(self,self.This_House_Parametrs)
     
+    # Метод изменения цвета окна 
+    def change_Window_color(self,new_color):
+        del self.House_Window
+        self.This_House_Parametrs.update(dict(wincolor = new_color))  
+        self.House_Window = Window(self.This_House_Parametrs)
+    
+    def change_Window_N(self,new_N):
+        del self.House_Window
+        del self.House_Door
+        del self.House_Wall
         
+        self.This_House_Parametrs.update(dict(N = new_N))
+        self.House_Wall     = Walls(self.This_House_Parametrs)
+        self.House_Window   = Window(self.This_House_Parametrs)
+        self.House_Door     = Door(self.This_House_Parametrs)
         
     def __del__(self):
         print("Дом удаляется")
@@ -173,11 +180,7 @@ class Geometry_Draw:
             t.pencolor("Black")
        
         
-       
-        
-       
-        
-        
+      
                
 class Foundation(Geometry_Draw):
     def __init__(self, kwargs):   #x,y,w_f,h_f ,fcolor
@@ -275,13 +278,14 @@ class Roof(Geometry_Draw):
             
         
 class Door(Geometry_Draw):
-    def __init__(self, kwargs ): #x , y, w_f = 400, h_f = 15, Door_location = 30,dcolor = "Brown"
+    def __init__(self, kwargs ): #x , y, w_f = 400, h_f = 15, Door_location = 1,dcolor = "Brown"
         print("Создание объекта - Дверь")
-        self.Door_Location =  kwargs["Door_location"]
+      
         self.Door_Color = kwargs["dcolor"]
         self.Walls_Width = kwargs["w_f"] * 0.8
         self.Walls_Height =  kwargs["h_f"] * 15
         self.Walls_Color = kwargs["wcolor"]
+        self.Door_Location =  kwargs["Door_location"] * self.Walls_Width
         self.Door_X = kwargs["x"] + self.Door_Location
         self.Door_Y = kwargs["y"]
         self.Door_Width = self.Walls_Width * 0.2
@@ -311,7 +315,7 @@ class Window(Geometry_Draw):
         self.Window_X = kwargs["x"] + self.Window_Loc * self.Walls_Width
         self.Window_Y = kwargs["y"] + 0.5 * self.Walls_Height
         self.Window_Color = kwargs["wincolor"] 
-        self.Window_Radius = 2.5 * kwargs["h_f"] 
+        self.Window_Radius = 0.1 * sqrt(self.Walls_Width*self.Walls_Height) 
         self.Window_N = kwargs["N"]
         self.Draw_Window()
         
@@ -331,89 +335,3 @@ class Window(Geometry_Draw):
     
     
 
-
-
-"""
-House_1_Parameters = dict(Door_location = 200,N =18,winloc =0.3,wcolor = "orange")
-#X,Y,Door_location = 200,N =36,winloc =0.3,wcolor = "orange"
-House_1 = House(House_1_Parameters )
-
-House_1_Parameters = dict(Door_location = 200,N =18,winloc =0.3,wcolor = "orange",w_f = 200)
-House_1 = House(House_1_Parameters )
-House_1 = House(Common_House_Parametrs)
-
-del House_1
-
-
-
-
-House_1.House_Window.Draw_Window()
-
-House_1.change_Roof_color("Red")
-t.tracer(1)
-Times = 1
-i = 0 
-Color_list = ['red','green','blue','black','yellow']
-while Times < 200:
-    
-    House_1.change_Roof_color(Color_list[i%5])
-    i +=1
-    House_1.Change_Position(Times,0)
-    Times += 30
-Times2 =1
-while Times2 < 200:
-    House_1.Change_Position(Times,0 - Times2)
-    Times2 += 30
-
-
-
-
-t.mainloop()
-"""
-"""
-
-House_1.House_Window.Erase_Window()
-House_1.House_Door.Erase_Door()
-
-
-House_2_Parameters = dict(x = X-50, y = Y,h_f = 10,rcolor ="Gray",N = 8)
-
-House_2 = House(House_2_Parameters)
-House_2.Change_Position(0,-100)
-print("Цвет крыши дома 2: ",House_2.House_Roof.Roof_Color)
-del House_2
-
-"""
-#X-50,Y,h_f = 10,rcolor ="Gray",N = 8
-# House_2.Change_Position(0,-100)
-"""
-def ans_formating(ans):
-    ans = ans.lower()
-    ans = ans.capitalize()
-    return ans
-
-
-ans = ans_formating(input("Желаете поменять тип крыши?\n"))
-
-if ans in ["Да","Д","Yes","Y","Ye"]:
-    new_roof_kind = ans_formating(input("Введите тип новой крыши: "))
-    House_2.Choose_new_roof(new_roof_kind)
-    print(f"Тип крыши изменён на {new_roof_kind}")
-
-
-ans = ans_formating(input("Желаете поменять цвет крыши?\n"))
-if ans in ["Да","Д","Yes","Y","Ye"]:
-    new_roof_color = ans_formating(input("Введите новый цвет крыши: "))
-    House_2.change_Roof_color(new_roof_color)
-    print(f"Цвет крыши изменён на {new_roof_color}")
-
-House_2.change_walls_color("light green")
-House_2.Change_Position(0,-100)
-
-House_3_Parameters = dict(w_f = 200,h_f = 8, rcolor ="light green",N=7)
-House_3 = House(House_3_Parameters)
-del House_2
-House_3.Choose_new_roof("triangle")
-del House_3
-t.mainloop()
-"""
